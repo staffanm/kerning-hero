@@ -30,6 +30,8 @@ const $ = id => document.getElementById(id);
 const wordEl=$('word'), bar=$('bar'), verdict=$('verdict'), hint=$('hint');
 let score=0, streak=0, best=0, lives=3, round=0, answered=false, timer=null, deadline=0;
 let gapIdx=0, delta=0, curWord='', n=0, live=-1, liveDelta=0, fixed=false;
+let sel=-1;   // the gap under the mouse or picked with the keys, marked with a caret; -1 when none
+const touch=matchMedia('(pointer: coarse)').matches;
 try{ best = +localStorage.getItem('kh-best') || 0; }catch(e){}
 
 function sizeWord(){
@@ -57,6 +59,8 @@ function render(){
     wordEl.insertBefore(sp, marks[0]||null); from=c+1;
     if(from>=n) break;
   }
+  wordEl.querySelector('.caret')?.remove();
+  if(sel>=0 && !answered) placeMark(sel,'caret');
 }
 function charRect(j){
   for(const r of wordEl.querySelectorAll('.run')){
@@ -92,7 +96,7 @@ function pickWord(){
 }
 
 function nextRound(){
-  round++; answered=false; fixed=false; live=-1;
+  round++; answered=false; fixed=false; live=-1; sel=-1;
   const {mag,time}=difficulty();
   [curWord,gapIdx]=pickWord(); n=curWord.length;
   const [fam,wt]=FONTS[Math.floor(Math.random()*FONTS.length)];
@@ -104,7 +108,7 @@ function nextRound(){
   sizeWord();
   wordEl.innerHTML=''; render();
   verdict.textContent=''; verdict.className='verdict';
-  hint.textContent = round<=2 ? 'Pinch or spread on the gap that looks wrong.' : '';
+  hint.textContent = round>2 ? '' : touch ? 'Pinch or spread on the gap that looks wrong.' : 'Click on the gap that looks wrong.';
   setStats();
   clearTimeout(timer);
   deadline=performance.now()+time;
@@ -173,11 +177,7 @@ wordEl.addEventListener('pointerdown',e=>{
   if(answered) return;
   if(e.pointerType==='mouse'){            // left click adds space, right click closes up
     e.preventDefault();
-    const i=gapAt(e.clientX), dir = e.button===2 ? -1 : 1;
-    // animate the push, then resolve
-    const fs=parseFloat(wordEl.style.fontSize), base=(i===gapIdx?delta:0);
-    live=i; liveDelta=Math.max(-0.45,Math.min(0.9, base + dir*0.12)); render();
-    setTimeout(()=>{ live=-1; resolve(i,dir); }, 120);
+    push(gapAt(e.clientX), e.button===2 ? -1 : 1);
     return;
   }
   wordEl.setPointerCapture(e.pointerId);
@@ -186,7 +186,14 @@ wordEl.addEventListener('pointerdown',e=>{
   if(pts.size===1){ mode='drag'; startX=e.clientX; setLive(gapAt(e.clientX),0); }
   else if(pts.size===2){ mode='pinch'; const [a,b]=[...pts.values()]; startDist=Math.hypot(a.x-b.x,a.y-b.y); setLive(gapAt((a.x+b.x)/2),0); }
 });
+// animate a push on gap i (dir 1 adds space, -1 closes up), then resolve
+function push(i,dir){
+  const base=(i===gapIdx?delta:0);
+  live=i; liveDelta=Math.max(-0.45,Math.min(0.9, base + dir*0.12)); render();
+  setTimeout(()=>{ live=-1; resolve(i,dir); }, 120);
+}
 wordEl.addEventListener('pointermove',e=>{
+  if(e.pointerType==='mouse'){ if(!answered){ const i=gapAt(e.clientX); if(i!==sel){ sel=i; render(); } } return; }
   if(answered||!pts.has(e.pointerId)) return;
   pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(mode==='pinch' && pts.size>=2){
@@ -210,16 +217,17 @@ function endPtr(e){
 }
 wordEl.addEventListener('pointerup',endPtr); wordEl.addEventListener('pointercancel',endPtr);
 
-// keyboard: ← → move, [ closes up, ] adds space
-wordEl.addEventListener('keydown',e=>{
-  if(answered) return;
-  let k=+(wordEl.dataset.kb||0);
-  if(e.key==='ArrowRight'){k=Math.min(n-2,k+1);}
-  else if(e.key==='ArrowLeft'){k=Math.max(0,k-1);}
-  else if(e.key==='['){live=-1;resolve(k,-1);return;}
-  else if(e.key===']'){live=-1;resolve(k,1);return;}
-  else return;
-  wordEl.dataset.kb=k; setLive(k,0);
+wordEl.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse' && sel>=0){ sel=-1; render(); } });
+
+// keyboard: ← → or A D pick a gap, ↑ or W adds space, ↓ or S closes up
+const KEYS={arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'up',w:'up',arrowdown:'down',s:'down'};
+document.addEventListener('keydown',e=>{
+  const k=KEYS[e.key.toLowerCase()];
+  if(!k || e.ctrlKey || e.metaKey || e.altKey || answered || !round || !$('intro').hidden || !$('over').hidden) return;
+  e.preventDefault();
+  if(sel<0){ sel=Math.floor((n-2)/2); render(); return; }   // the first key shows the caret in the middle of the word
+  if(k==='left' || k==='right'){ sel=Math.max(0,Math.min(n-2, sel+(k==='left'?-1:1))); render(); }
+  else push(sel, k==='up' ? 1 : -1);
 });
 
 function gameOver(){
