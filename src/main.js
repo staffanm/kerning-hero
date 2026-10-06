@@ -171,9 +171,9 @@ function convergeX(){
 wordEl.addEventListener('contextmenu',e=>e.preventDefault());
 wordEl.addEventListener('pointerdown',e=>{
   if(answered) return;
-  if(e.pointerType==='mouse'){            // left click closes up, right click adds space
+  if(e.pointerType==='mouse'){            // left click adds space, right click closes up
     e.preventDefault();
-    const i=gapAt(e.clientX), dir = e.button===2 ? 1 : -1;
+    const i=gapAt(e.clientX), dir = e.button===2 ? -1 : 1;
     // animate the push, then resolve
     const fs=parseFloat(wordEl.style.fontSize), base=(i===gapIdx?delta:0);
     live=i; liveDelta=Math.max(-0.45,Math.min(0.9, base + dir*0.12)); render();
