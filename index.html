@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#ECE5D5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kerning Hero">
+<title>Kerning Hero</title>
+<meta name="description" content="One letter pair in every word is spaced wrong. Find it and pinch or spread it into place before the pencil line runs out.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kerning Hero">
+<meta property="og:description" content="One letter pair in every word is spaced wrong. Find it and pinch or spread it into place before the pencil line runs out.">
+<meta property="og:url" content="https://kerninghero.tomtebo.org/">
+<meta property="og:image" content="https://kerninghero.tomtebo.org/icon-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+</head>
+<body>
+<header>
+  <h1>Kerning Hero</h1>
+  <div class="stats">
+    <span>score <b id="score">0</b></span>
+    <span>word <b id="rnd">0</b>/30</span>
+    <span>streak <b id="streak">0</b></span>
+    <span class="lives" id="lives">●●●</span>
+  </div>
+</header>
+
+<main>
+  <div class="timer" aria-hidden="true"><i id="bar"></i></div>
+  <div class="sheet"><div class="word" id="word" tabindex="0" role="button" aria-label="Pinch, spread, or click on the gap that looks wrong"></div></div>
+  <div class="verdict" id="verdict" aria-live="polite"></div>
+  <p class="hint" id="hint"></p>
+
+  <section class="panel" id="intro">
+    <h2>Fix the <em>gap</em></h2>
+    <p>One letter pair in every word is spaced wrong. Find it and push it the right way before the pencil line runs out. Thirty words, and they get harder.</p>
+    <div class="gest">
+      <div><b>Pinch in</b> on it (or left-click): too loose, close it up</div>
+      <div><b>Spread out</b> on it (or right-click): too tight, add space</div>
+    </div>
+    <p>Push the broken gap the right way and it snaps into place. Anything else is a strike. Three strikes and the proof goes back to the printer. Watch the ligatures: a broken fi or st is a tell.</p>
+    <button class="btn" id="start">Start proofing</button>
+    <p style="font-size:13px">Landscape gives you the most room to work in.</p>
+  </section>
+
+  <section class="panel" id="over" hidden>
+    <div class="big" id="final">0</div>
+    <p id="summary"></p>
+    <button class="btn" id="again">Proof another</button>
+  </section>
+</main>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

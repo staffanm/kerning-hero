@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect class="bg" width="512" height="512" rx="0" fill="#ECE5D5"/>
+  <!-- two letters with a gap that is too wide, and the proofreader's close-up mark above it -->
+  <g fill="#1C2A3F" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="300" text-anchor="middle">
+    <text x="150" y="400">A</text>
+    <text x="370" y="400">V</text>
+  </g>
+  <path d="M196 150 Q256 70 316 150" fill="none" stroke="#D8432F" stroke-width="22" stroke-linecap="round"/>
+  <path d="M256 190 V330" stroke="#D8432F" stroke-width="12" stroke-linecap="round" stroke-dasharray="4 26"/>
+</svg>
