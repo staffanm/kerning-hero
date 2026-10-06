@@ -229,6 +229,7 @@ function gameOver(){
   $('final').textContent=score; $('over').hidden=false;
 }
 async function goLandscape(){
+  if(!matchMedia('(pointer: coarse)').matches) return;   // only phones and tablets go full screen
   try{ if(!document.fullscreenElement && document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen(); }catch(e){}
   try{ await screen.orientation.lock('landscape'); }catch(e){}
 }
